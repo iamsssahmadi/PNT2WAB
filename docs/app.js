@@ -1,5 +1,6 @@
 // User interface for the PNT -> WAB-R estimator. All computation is local.
-import { predict, validateInput } from "./predict.js";
+import { predict, validateInput } from "./predict.js?v=2.2.1";
+window.__pntAppStarted = true;
 
 const $ = (id) => document.getElementById(id);
 const fmt = (x, d = 1) => (Math.round(x * 10 ** d) / 10 ** d).toFixed(d);
@@ -267,7 +268,7 @@ function setupTabs() {
 async function main() {
   setupTabs();
   try {
-    [MODEL, VAL] = await Promise.all(["model.json", "validation.json"].map((f) => fetch(f).then((r) => {
+    [MODEL, VAL] = await Promise.all(["model.json", "validation.json"].map((f) => fetch(`${f}?v=2.2.1`, { cache: "no-cache" }).then((r) => {
       if (!r.ok) throw new Error(`${f}: HTTP ${r.status}`);
       return r.json();
     })));
@@ -282,7 +283,11 @@ async function main() {
   if (repo) $("repo-link").href = repo.content;
 
   ["c-correct", "total", "level", ...ERRORS.map(([id]) => id)].forEach((id) => $(id).addEventListener("input", renderSingle));
-  $("single-form").addEventListener("submit", (e) => e.preventDefault());
+  $("single-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    renderSingle();
+    $("hero").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
   $("copy").addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(summaryText());

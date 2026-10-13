@@ -32,8 +32,9 @@ def main():
     url = f"http://127.0.0.1:{httpd.server_address[1]}/index.html"
     errors = []
     with sync_playwright() as p:
+        engine = getattr(p, os.environ.get("BROWSER", "chromium"))  # chromium | firefox | webkit
         exe = os.environ.get("CHROMIUM_PATH")  # optional: use an already-installed Chromium
-        browser = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
+        browser = engine.launch(executable_path=exe) if exe and engine is p.chromium else engine.launch()
         for name, vp in (("desktop", dict(width=1200, height=900)), ("phone", dict(width=390, height=844))):
             page = browser.new_page(viewport=vp)
             page.on("console", lambda m: errors.append(f"{name} console {m.type}: {m.text}") if m.type == "error" else None)
@@ -64,6 +65,8 @@ def main():
             assert page.locator("#profile").is_visible(), "error profile not shown"
             assert "R²" not in page.locator("#subtests").inner_text(), "R2 shown in accuracy badges"
             page.screenshot(path=str(OUT / f"{name}_profile.png"), full_page=True)
+            page.click("#calc")
+            assert page.locator("#hero .v").is_visible(), "Calculate button did not show results"
             hscroll = page.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth")
             assert not hscroll, f"{name}: horizontal page scroll"
             page.click("#t-batch")

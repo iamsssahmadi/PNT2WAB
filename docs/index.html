@@ -7,7 +7,7 @@
 <meta name="description" content="Estimate WAB-R subtest scores, composites and the Aphasia Quotient, with calibrated prediction intervals, from Philadelphia Naming Test accuracy. Runs entirely in your browser.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Cpath d='M8 22 L14 14 L18 18 L24 9' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <meta name="repository" content="https://github.com/iamsssahmadi/PNT2WAB">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2.2.1">
 </head>
 <body>
 <header class="top">
@@ -48,6 +48,7 @@
               <option value="0.8">80%</option>
             </select>
           </label>
+          <button type="submit" id="calc">Calculate</button>
           <p class="sum" id="sum-line" aria-live="polite"></p>
         </div>
       </fieldset>
@@ -57,7 +58,7 @@
     <p class="warn" id="total-warn" hidden>The model was developed on the full 175-item PNT. With a different number of items, the estimate uses the proportion correct and has not been validated.</p>
 
     <div id="single-out" aria-live="polite">
-      <div class="hero" id="hero"></div>
+      <div class="hero" id="hero"><div class="k">Loading model…</div></div>
       <p class="warn" id="severity-warn" hidden></p>
       <div class="cards" id="composites"></div>
       <div id="profile" hidden></div>
@@ -123,6 +124,18 @@
 <footer class="wrap foot">
   <p>Open-source research software. Source code, analysis plan and validation results are in the <a id="repo-link" href="https://github.com/">project repository</a>.</p>
 </footer>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=2.2.1"></script>
+<script>
+  // shown only if the app script never starts (old browser, blocked script, or opened as a local file)
+  setTimeout(function () {
+    if (!window.__pntAppStarted) {
+      var e = document.getElementById("single-error");
+      e.textContent = "The estimator could not start. Please use an up-to-date Chrome, Edge, Firefox or Safari, "
+        + "open it at https://iamsssahmadi.github.io/PNT2WAB/ (not as a local file), and reload with Ctrl+Shift+R.";
+      e.hidden = false;
+    }
+  }, 4000);
+</script>
+<noscript><p class="wrap error">This estimator needs JavaScript. Please enable it in your browser.</p></noscript>
 </body>
 </html>
