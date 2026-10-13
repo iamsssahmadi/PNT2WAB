@@ -42,25 +42,37 @@ def main():
             page.wait_for_selector("#subtests tbody tr")
             assert page.locator("#subtests tbody tr").count() == 14, "expected 10 subtests + 4 group rows"
             aq = page.locator("#hero .v").inner_text()
-            page.fill("#correct", "20")
+            page.fill("#c-correct", "20")
             page.wait_for_timeout(100)
             aq2 = page.locator("#hero .v").inner_text()
             assert aq != aq2, "estimate did not update"
             assert page.locator("#severity-warn").is_visible(), "severity warning should show at 20/175"
             page.screenshot(path=str(OUT / f"{name}_single.png"), full_page=True)
-            page.fill("#correct", "300")
+            page.fill("#c-correct", "300")
             page.wait_for_timeout(100)
             assert page.locator("#single-error").is_visible(), "invalid input not flagged"
-            page.fill("#correct", "120")
+            page.fill("#c-correct", "120")
+            page.fill("#c-semantic", "10")  # errors entered but not summing to 175
+            page.wait_for_timeout(100)
+            assert page.locator("#single-error").is_visible(), "count mismatch not flagged"
+            for sel, v in (("#c-formal", "12"), ("#c-mixed", "2"), ("#c-neologism", "8"), ("#c-unrelated", "3"), ("#c-nr", "20")):
+                page.fill(sel, v)
+            page.wait_for_timeout(100)
+            assert not page.locator("#single-error").is_visible(), "consistent counts flagged as error"
+            assert page.locator("#profile").is_visible(), "error profile not shown"
+            assert "R²" not in page.locator("#subtests").inner_text(), "R2 shown in accuracy badges"
+            page.screenshot(path=str(OUT / f"{name}_profile.png"), full_page=True)
             hscroll = page.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth")
             assert not hscroll, f"{name}: horizontal page scroll"
             page.click("#t-batch")
             csv = OUT / "batch.csv"
-            csv.write_text("id,pnt_correct,pnt_total\nA,120,175\nB,0,175\nC,175,175\nD,abc,175\nE,80,174\n")
+            csv.write_text("id,pnt_correct,pnt_total,semantic,formal,mixed,neologism,unrelated,no_response\n"
+                           "A,120,175,7,12,2,8,6,20\nB,0,175,,,,,,\nC,175,175,0,0,0,0,0,0\nD,abc,175,,,,,,\n"
+                           "E,80,174,,,,,,\nF,100,175,10,10,10,10,10,10\n")
             page.set_input_files("#csv", str(csv))
             page.wait_for_selector("#batch-out:not([hidden])")
             summ = page.locator("#batch-summary").inner_text()
-            assert summ.startswith("4 rows estimated, 1 skipped"), summ
+            assert summ.startswith("4 rows estimated, 2 skipped"), summ
             page.screenshot(path=str(OUT / f"{name}_batch.png"), full_page=True)
             page.click("#t-about")
             assert page.locator("#val-table tbody tr").count() == 14

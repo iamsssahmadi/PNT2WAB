@@ -28,19 +28,30 @@
 
   <!-- ============================================================ single -->
   <section id="tab-single" role="tabpanel" aria-labelledby="t-single">
-    <form class="inputs" id="single-form" novalidate>
-      <label>PNT items correct
-        <input id="correct" type="number" inputmode="numeric" min="0" max="175" step="1" value="120" required>
-      </label>
-      <label>Items administered
-        <input id="total" type="number" inputmode="numeric" min="1" max="175" step="1" value="175" required>
-      </label>
-      <label>Prediction interval
-        <select id="level">
-          <option value="0.9" selected>90%</option>
-          <option value="0.8">80%</option>
-        </select>
-      </label>
+    <form id="single-form" novalidate>
+      <fieldset class="counts">
+        <legend>PNT response counts</legend>
+        <div class="inputs">
+          <label>Correct <input id="c-correct" type="number" inputmode="numeric" min="0" max="175" step="1" value="120" required></label>
+          <label>Semantic <input id="c-semantic" class="err-in" type="number" inputmode="numeric" min="0" max="175" step="1" placeholder="0"></label>
+          <label>Formal <input id="c-formal" class="err-in" type="number" inputmode="numeric" min="0" max="175" step="1" placeholder="0"></label>
+          <label>Mixed <input id="c-mixed" class="err-in" type="number" inputmode="numeric" min="0" max="175" step="1" placeholder="0"></label>
+          <label>Neologism <input id="c-neologism" class="err-in" type="number" inputmode="numeric" min="0" max="175" step="1" placeholder="0"></label>
+          <label>Unrelated <input id="c-unrelated" class="err-in" type="number" inputmode="numeric" min="0" max="175" step="1" placeholder="0"></label>
+          <label>No response <input id="c-nr" class="err-in" type="number" inputmode="numeric" min="0" max="175" step="1" placeholder="0"></label>
+        </div>
+        <div class="inputs second">
+          <label>Items administered <input id="total" type="number" inputmode="numeric" min="1" max="175" step="1" value="175" required></label>
+          <label>Prediction interval
+            <select id="level">
+              <option value="0.9" selected>90%</option>
+              <option value="0.8">80%</option>
+            </select>
+          </label>
+          <p class="sum" id="sum-line" aria-live="polite"></p>
+        </div>
+      </fieldset>
+      <p class="hint">Error counts are optional. When entered, they must add up to the items administered together with the correct responses. Estimates are based on naming accuracy (correct / items administered): in the validation study, error types did not improve the WAB-R estimates. The error profile is shown for your records.</p>
     </form>
     <p class="error" id="single-error" role="alert" hidden></p>
     <p class="warn" id="total-warn" hidden>The model was developed on the full 175-item PNT. With a different number of items, the estimate uses the proportion correct and has not been validated.</p>
@@ -49,6 +60,7 @@
       <div class="hero" id="hero"></div>
       <p class="warn" id="severity-warn" hidden></p>
       <div class="cards" id="composites"></div>
+      <div id="profile" hidden></div>
       <h2>Subtests</h2>
       <div class="scroll">
         <table class="results" id="subtests">
@@ -56,7 +68,7 @@
           <tbody></tbody>
         </table>
       </div>
-      <p class="hint">The interval is calibrated so that, across patients like those in the development sample, it contains the true score <span class="lvl">90%</span> of the time. Coverage is lower than this in severe aphasia and higher in mild aphasia (see <em>Validation &amp; method</em>). “Accuracy” is the cross-validated R² for that subtest.</p>
+      <p class="hint">The interval is calibrated so that, across patients like those in the development sample, it contains the true score <span class="lvl">90%</span> of the time. Coverage is lower than this in severe aphasia and higher in mild aphasia (see <em>Validation &amp; method</em>). “Accuracy” shows how well each subtest is predicted from the PNT in cross-validation: good, moderate, or limited.</p>
       <div class="actions">
         <button type="button" id="copy" class="secondary">Copy summary</button>
         <span id="copied" class="hint" role="status" hidden>Copied to clipboard.</span>
@@ -66,7 +78,7 @@
 
   <!-- ============================================================ batch -->
   <section id="tab-batch" role="tabpanel" aria-labelledby="t-batch" hidden>
-    <p>Upload a CSV with one row per assessment. Required columns: <code>id</code> and <code>pnt_correct</code>. Optional: <code>pnt_total</code> (defaults to 175). The file is read in your browser and never uploaded.</p>
+    <p>Upload a CSV with one row per assessment. Required columns: <code>id</code> and <code>pnt_correct</code>. Optional: <code>pnt_total</code> (defaults to 175) and the error counts <code>semantic</code>, <code>formal</code>, <code>mixed</code>, <code>neologism</code>, <code>unrelated</code>, <code>no_response</code>; when error counts are given, correct + errors must equal the items administered. The file is read in your browser and never uploaded.</p>
     <div class="batch-controls">
       <label class="file">Choose CSV file<input id="csv" type="file" accept=".csv,text/csv"></label>
       <label>Prediction interval

@@ -94,3 +94,18 @@ code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; fon
   .results th, .results td { padding: 7px 8px; }
   .hero .sev { margin-left: 0; }
 }
+
+fieldset.counts { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px 16px; margin: 0; background: var(--surface); }
+fieldset.counts legend { padding: 0 6px; font-weight: 600; font-size: .95rem; }
+.counts .inputs { gap: 12px; }
+.counts input[type=number] { width: 104px; }
+.inputs.second { margin-top: 14px; }
+.sum { margin: 0 0 8px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.sum.bad { color: var(--err); font-weight: 600; }
+#profile { margin-top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; }
+#profile .k { color: var(--muted); font-size: .85rem; margin-bottom: 8px; }
+.stack { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--line); }
+.stack span { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+@media (max-width: 640px) { .counts input[type=number] { width: 92px; } }

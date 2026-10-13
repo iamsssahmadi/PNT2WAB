@@ -3,7 +3,7 @@
 Code, validation results and a browser-based estimator for the study
 *Calibrated prediction of the Western Aphasia Battery–Revised profile from Philadelphia Naming Test performance: nonlinear, bounded, and foundation models, and the limits of naming-based inference* (Ahmadi et al., preprint 2026).
 
-**Web tool:** https://iamsssahmadi.github.io/PNT2WAB/ — enter PNT total correct (or upload a CSV) and get estimates of all 10 WAB-R subtests, the three composites and the Aphasia Quotient, each with a calibrated prediction interval. Everything runs in your browser; no data leave your computer.
+**Web tool:** https://iamsssahmadi.github.io/PNT2WAB/ — enter the PNT response counts (or upload a CSV) and get estimates of all 10 WAB-R subtests, the three composites and the Aphasia Quotient, each with a calibrated prediction interval. Everything runs in your browser; no data leave your computer.
 
 > **An adjunct, not a replacement.** Production subtests are estimated with useful precision; auditory comprehension is not, and comprehension intervals under-cover in severe aphasia. The tool is not suitable for monitoring an individual's change over time and is not a diagnostic device.
 
@@ -11,7 +11,7 @@ Code, validation results and a browser-based estimator for the study
 
 | | |
 |---|---|
-| Input | PNT total correct (and number of items administered; developed on the 175-item PNT) |
+| Input | PNT response counts: correct plus, optionally, the six error types (checked to sum to the items administered and shown as an error profile). The estimate uses naming accuracy, since error types did not improve prediction in the validation study |
 | Model | Ridge fractional-logit GLM per WAB-R subtest on logit accuracy (linear, quadratic, cubic terms); predictions stay on each subtest's 0-to-maximum scale |
 | Composites | Spontaneous Speech, Auditory Verbal Comprehension, Naming & Word Finding and the AQ are computed from predicted subtests with the WAB-R formulas |
 | Intervals | Normalised conformal quantile from nested cross-validation: 90.1–91.2% observed coverage for 90% intervals (lower in severe aphasia) |

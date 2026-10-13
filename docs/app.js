@@ -27,10 +27,35 @@ function severity(aq) {
 function accuracyTag(key) {
   const v = valByKey[key];
   if (!v) return "";
-  const r2 = Math.round(v.r2 * 100) / 100;  // classify the value that is displayed
+  const r2 = Math.round(v.r2 * 100) / 100;  // classify the value reported on the Validation tab
   const cls = r2 >= 0.75 ? "good" : r2 >= 0.6 ? "mid" : "low";
   const word = r2 >= 0.75 ? "good" : r2 >= 0.6 ? "moderate" : "limited";
-  return `<span class="tag ${cls}" title="Cross-validated R² = ${v.r2.toFixed(2)}">${word} · R² ${v.r2.toFixed(2)}</span>`;
+  return `<span class="tag ${cls}">${word}</span>`;
+}
+
+// PNT error categories: [input id, label, batch column, colour]
+const ERRORS = [
+  ["c-semantic", "Semantic", "semantic", "#2a78d6"],
+  ["c-formal", "Formal", "formal", "#eb6834"],
+  ["c-mixed", "Mixed", "mixed", "#1baf7a"],
+  ["c-neologism", "Neologism", "neologism", "#eda100"],
+  ["c-unrelated", "Unrelated", "unrelated", "#e87ba4"],
+  ["c-nr", "No response", "no_response", "#8f8e88"],
+];
+
+// Read the form. Returns {correct, total, errors[], errSum, entered, problem}.
+function readCounts() {
+  const num = (id) => { const v = $(id).value.trim(); return v === "" ? 0 : Number(v); };
+  const correct = Number($("c-correct").value), total = Number($("total").value);
+  const errors = ERRORS.map(([id]) => num(id));
+  const errSum = errors.reduce((a, b) => a + b, 0);
+  const entered = ERRORS.some(([id]) => $(id).value.trim() !== "");
+  let problem = validateInput(correct, total);
+  if (!problem && errors.some((e) => !Number.isFinite(e) || e < 0 || !Number.isInteger(e))) problem = "Error counts must be whole numbers of 0 or more.";
+  if (!problem && entered && correct + errSum !== total) {
+    problem = `Correct (${correct}) + errors (${errSum}) = ${correct + errSum}, but ${total} items were administered. Check the counts.`;
+  }
+  return { correct, total, errors, errSum, entered, problem };
 }
 
 function bar(s) {
@@ -42,12 +67,20 @@ function bar(s) {
 
 // ---------------------------------------------------------------- single
 function renderSingle() {
-  const correct = Number($("correct").value), total = Number($("total").value), level = $("level").value;
-  const err = validateInput(correct, total);
+  const level = $("level").value;
+  const k = readCounts();
+  const { correct, total } = k;
+  const line = $("sum-line");
+  line.classList.toggle("bad", Boolean(k.entered && correct + k.errSum !== total));
+  line.textContent = k.entered
+    ? `Correct ${correct} + errors ${k.errSum} = ${correct + k.errSum} of ${total} items`
+    : `Accuracy ${Number.isFinite(correct) ? correct : "–"} / ${total} (error breakdown not entered)`;
+  const err = k.problem;
   $("single-error").hidden = !err;
   $("single-error").textContent = err || "";
   $("single-out").hidden = Boolean(err);
   if (err) return;
+  renderProfile(k);
   $("total-warn").hidden = total === 175;
   document.querySelectorAll(".lvl").forEach((e) => { e.textContent = pct(Number(level)); });
 
@@ -75,10 +108,25 @@ function renderSingle() {
   $("subtests").querySelector("tbody").innerHTML = rows;
 }
 
+function renderProfile(k) {
+  const box = $("profile");
+  box.hidden = !(k.entered && k.errSum > 0);
+  if (box.hidden) return;
+  const parts = ERRORS.map(([, label, , col], i) => ({ label, col, n: k.errors[i] })).filter((p) => p.n > 0);
+  box.innerHTML = `<div class="k">Error profile: ${k.errSum} errors (${pct(k.errSum / k.total)} of items), shown for the record — not used in the estimate</div>
+    <div class="stack" role="img" aria-label="${parts.map((p) => `${p.label} ${p.n}`).join(", ")}">${parts.map((p) =>
+      `<span style="width:${(p.n / k.errSum) * 100}%;background:${p.col}" title="${p.label}: ${p.n}"></span>`).join("")}</div>
+    <div class="legend">${parts.map((p) => `<span><i style="background:${p.col}"></i>${p.label} ${p.n} (${pct(p.n / k.errSum)})</span>`).join("")}</div>`;
+}
+
 function summaryText() {
-  const correct = Number($("correct").value), total = Number($("total").value), level = $("level").value;
+  const level = $("level").value;
+  const k = readCounts();
+  const { correct, total } = k;
   const r = predict(MODEL, correct, total, level);
-  const lines = [`PNT ${correct}/${total} correct. Estimated WAB-R (${pct(Number(level))} prediction intervals; PNT-to-WAB-R estimator v${MODEL.version}):`];
+  const lines = [`PNT ${correct}/${total} correct.`];
+  if (k.entered) lines.push(`Errors: ${ERRORS.map(([, label], i) => `${label} ${k.errors[i]}`).join(", ")}.`);
+  lines.push(`Estimated WAB-R (${pct(Number(level))} prediction intervals; PNT-to-WAB-R estimator v${MODEL.version}):`);
   for (const s of [...r.derived.slice(3), ...r.derived.slice(0, 3), ...r.subtests]) {
     lines.push(`  ${s.label}: ${fmt(s.pred)} (${fmt(s.lo)}–${fmt(s.hi)}) of ${s.max}`);
   }
@@ -121,6 +169,8 @@ function runBatch(text) {
   if (rows.length < 2) { errEl.textContent = "The file has no data rows."; errEl.hidden = false; return; }
   const head = rows[0].map((h) => h.trim().toLowerCase());
   const iId = head.indexOf("id"), iC = head.indexOf("pnt_correct"), iT = head.indexOf("pnt_total");
+  const iErr = ERRORS.map(([, , col]) => head.indexOf(col));
+  const hasErr = iErr.some((i) => i >= 0);
   if (iId < 0 || iC < 0) { errEl.textContent = "Required columns: id, pnt_correct (optional: pnt_total)."; errEl.hidden = false; return; }
   const level = $("batch-level").value;
   const keys = [...MODEL.derived.slice(3), ...MODEL.derived.slice(0, 3), ...MODEL.subtests].map((s) => s.key);
@@ -133,7 +183,13 @@ function runBatch(text) {
     const id = (r[iId] ?? "").trim();
     const c = Number((r[iC] ?? "").trim());
     const t = iT >= 0 && (r[iT] ?? "").trim() !== "" ? Number(r[iT].trim()) : 175;
-    const e = validateInput(c, t);
+    let e = validateInput(c, t);
+    const rowHasErr = hasErr && iErr.some((i) => i >= 0 && (r[i] ?? "").trim() !== "");
+    if (!e && rowHasErr) {  // blank error cells = breakdown not entered for this row
+      const errs = iErr.map((i) => (i >= 0 && (r[i] ?? "").trim() !== "" ? Number(r[i].trim()) : 0));
+      if (errs.some((x) => !Number.isInteger(x) || x < 0)) e = "invalid error count";
+      else if (c + errs.reduce((a, b) => a + b, 0) !== t) e = `correct + errors (${c + errs.reduce((a, b) => a + b, 0)}) does not equal ${t} items`;
+    }
     if (e) { bad++; outRows.push([id, r[iC] ?? "", t, e]); continue; }
     ok++;
     const p = predict(MODEL, c, t, level);
@@ -223,7 +279,7 @@ async function main() {
   const repo = document.querySelector('meta[name="repository"]');
   if (repo) $("repo-link").href = repo.content;
 
-  ["correct", "total", "level"].forEach((id) => $(id).addEventListener("input", renderSingle));
+  ["c-correct", "total", "level", ...ERRORS.map(([id]) => id)].forEach((id) => $(id).addEventListener("input", renderSingle));
   $("single-form").addEventListener("submit", (e) => e.preventDefault());
   $("copy").addEventListener("click", async () => {
     try {
@@ -238,7 +294,7 @@ async function main() {
   });
   $("batch-level").addEventListener("change", () => { const f = $("csv").files[0]; if (f) f.text().then(runBatch); });
   $("download").addEventListener("click", () => download("pnt_wab_estimates.csv", batchCSV));
-  $("template").addEventListener("click", () => download("pnt_wab_template.csv", "id,pnt_correct,pnt_total\nP001,120,175\nP002,45,175\n"));
+  $("template").addEventListener("click", () => download("pnt_wab_template.csv", "id,pnt_correct,pnt_total,semantic,formal,mixed,neologism,unrelated,no_response\nP001,120,175,7,12,2,8,6,20\nP002,45,175,,,,,,\n"));
   renderSingle();
   renderAbout();
 }
