@@ -52,9 +52,11 @@ def main():
             page.wait_for_timeout(100)
             assert page.locator("#single-error").is_visible(), "invalid input not flagged"
             page.fill("#c-correct", "120")
-            page.fill("#c-semantic", "10")  # errors entered but not summing to 175
+            page.fill("#c-semantic", "10")  # errors entered but not summing to 175 yet
             page.wait_for_timeout(100)
-            assert page.locator("#single-error").is_visible(), "count mismatch not flagged"
+            assert page.locator("#single-out").is_visible(), "estimate hidden while counts are incomplete"
+            assert "still to enter" in page.locator("#sum-line").inner_text(), "incomplete counts not flagged"
+            assert not page.locator("#profile").is_visible(), "profile shown before counts add up"
             for sel, v in (("#c-formal", "12"), ("#c-mixed", "2"), ("#c-neologism", "8"), ("#c-unrelated", "3"), ("#c-nr", "20")):
                 page.fill(sel, v)
             page.wait_for_timeout(100)

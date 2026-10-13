@@ -52,10 +52,10 @@ function readCounts() {
   const entered = ERRORS.some(([id]) => $(id).value.trim() !== "");
   let problem = validateInput(correct, total);
   if (!problem && errors.some((e) => !Number.isFinite(e) || e < 0 || !Number.isInteger(e))) problem = "Error counts must be whole numbers of 0 or more.";
-  if (!problem && entered && correct + errSum !== total) {
-    problem = `Correct (${correct}) + errors (${errSum}) = ${correct + errSum}, but ${total} items were administered. Check the counts.`;
-  }
-  return { correct, total, errors, errSum, entered, problem };
+  // a count mismatch does not block the estimate (it uses correct / items administered);
+  // it is flagged on the running total, and the error profile waits until the counts add up
+  const consistent = !entered || correct + errSum === total;
+  return { correct, total, errors, errSum, entered, consistent, problem };
 }
 
 function bar(s) {
@@ -71,10 +71,12 @@ function renderSingle() {
   const k = readCounts();
   const { correct, total } = k;
   const line = $("sum-line");
-  line.classList.toggle("bad", Boolean(k.entered && correct + k.errSum !== total));
-  line.textContent = k.entered
-    ? `Correct ${correct} + errors ${k.errSum} = ${correct + k.errSum} of ${total} items`
-    : `Accuracy ${Number.isFinite(correct) ? correct : "–"} / ${total} (error breakdown not entered)`;
+  line.classList.toggle("bad", !k.consistent);
+  line.textContent = !k.entered
+    ? `Accuracy ${Number.isFinite(correct) ? correct : "–"} / ${total} (error breakdown not entered)`
+    : k.consistent
+      ? `Correct ${correct} + errors ${k.errSum} = ${correct + k.errSum} of ${total} items ✓`
+      : `Correct ${correct} + errors ${k.errSum} = ${correct + k.errSum} of ${total} items (${total - correct - k.errSum > 0 ? `${total - correct - k.errSum} still to enter` : `${correct + k.errSum - total} too many`})`;
   const err = k.problem;
   $("single-error").hidden = !err;
   $("single-error").textContent = err || "";
@@ -110,7 +112,7 @@ function renderSingle() {
 
 function renderProfile(k) {
   const box = $("profile");
-  box.hidden = !(k.entered && k.errSum > 0);
+  box.hidden = !(k.entered && k.consistent && k.errSum > 0);
   if (box.hidden) return;
   const parts = ERRORS.map(([, label, , col], i) => ({ label, col, n: k.errors[i] })).filter((p) => p.n > 0);
   box.innerHTML = `<div class="k">Error profile: ${k.errSum} errors (${pct(k.errSum / k.total)} of items), shown for the record — not used in the estimate</div>
@@ -125,7 +127,7 @@ function summaryText() {
   const { correct, total } = k;
   const r = predict(MODEL, correct, total, level);
   const lines = [`PNT ${correct}/${total} correct.`];
-  if (k.entered) lines.push(`Errors: ${ERRORS.map(([, label], i) => `${label} ${k.errors[i]}`).join(", ")}.`);
+  if (k.entered && k.consistent) lines.push(`Errors: ${ERRORS.map(([, label], i) => `${label} ${k.errors[i]}`).join(", ")}.`);
   lines.push(`Estimated WAB-R (${pct(Number(level))} prediction intervals; PNT-to-WAB-R estimator v${MODEL.version}):`);
   for (const s of [...r.derived.slice(3), ...r.derived.slice(0, 3), ...r.subtests]) {
     lines.push(`  ${s.label}: ${fmt(s.pred)} (${fmt(s.lo)}–${fmt(s.hi)}) of ${s.max}`);
