@@ -3,7 +3,7 @@
 Code, validation results and a browser-based estimator for the study
 *Calibrated prediction of the Western Aphasia Battery–Revised profile from Philadelphia Naming Test performance: nonlinear, bounded, and foundation models, and the limits of naming-based inference* (Ahmadi et al., preprint 2026).
 
-**Web tool:** https://iamsssahmadi.github.io/PNT2WAB/ — enter the PNT response counts (or upload a CSV) and get estimates of all 10 WAB-R subtests, the three composites and the Aphasia Quotient, each with a calibrated prediction interval. Everything runs in your browser; no data leave your computer.
+**Web tool:** https://saeed-ahmadi.github.io/PNT2WAB/ — enter the PNT response counts (or upload a CSV) and get estimates of all 10 WAB-R subtests, the three composites and the Aphasia Quotient, each with a calibrated prediction interval. Everything runs in your browser; no data leave your computer.
 
 > **An adjunct, not a replacement.** Production subtests are estimated with useful precision; auditory comprehension is not, and comprehension intervals under-cover in severe aphasia. The tool is not suitable for monitoring an individual's change over time and is not a diagnostic device.
 
