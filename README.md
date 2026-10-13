@@ -75,11 +75,6 @@ The page loads `model.json` with `fetch`, so serve the folder rather than openin
 ```bash
 python -m http.server --directory docs 8000   # then open http://localhost:8000
 ```
-
-## Publishing the web tool (GitHub Pages)
-
-After pushing: *Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, folder `/docs`*. The site appears at `https://iamsssahmadi.github.io/PNT2WAB/` within a minute or two. 
-
 ## Data availability
 
 This repository contains no participant data and nothing derived at the level of individual participants: `docs/model.json` holds only model coefficients, scaling constants and one interval quantile per outcome, and `docs/validation.json` holds summary performance statistics. Analysis results and figures are generated locally by `reproduce.sh` and are not part of the repository. Data are available from the corresponding author on reasonable request, subject to institutional approval.
