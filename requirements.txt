@@ -1,0 +1,15 @@
+# analysis
+numpy==2.5.4
+pandas==3.0.6
+scipy==1.18.1
+scikit-learn==1.9.1
+openpyxl==3.1.5
+joblib==1.6.0
+torch==2.14.1
+catboost==1.2.10
+matplotlib==3.11.2
+pillow==12.3.0
+# exploratory analyses (TabPFN needs a Prior Labs licence token for v2.5+ weights)
+tabpfn==9.2.0
+# tests
+playwright==1.63.0

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PNT to WAB-R Estimator</title>
+<meta name="description" content="Estimate WAB-R subtest scores, composites and the Aphasia Quotient, with calibrated prediction intervals, from Philadelphia Naming Test accuracy. Runs entirely in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Cpath d='M8 22 L14 14 L18 18 L24 9' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="repository" content="https://github.com/iamsssahmadi/PNT2WAB">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Research tool · version <span id="ver">–</span></p>
+    <h1>PNT → WAB-R Estimator</h1>
+    <p class="sub">Estimates every WAB-R subtest, the composites and the Aphasia Quotient from Philadelphia Naming Test accuracy, each with a calibrated prediction interval.</p>
+    <p class="notice" role="note"><strong>An adjunct, not a replacement.</strong> Production subtests are estimated with useful precision; auditory comprehension is not, especially in severe aphasia. Not a diagnostic device. All computation happens in your browser; no data are sent anywhere.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" aria-selected="true" aria-controls="tab-single" id="t-single">Estimate</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-batch" id="t-batch" tabindex="-1">Batch (CSV)</button>
+    <button role="tab" aria-selected="false" aria-controls="tab-about" id="t-about" tabindex="-1">Validation &amp; method</button>
+  </nav>
+
+  <!-- ============================================================ single -->
+  <section id="tab-single" role="tabpanel" aria-labelledby="t-single">
+    <form class="inputs" id="single-form" novalidate>
+      <label>PNT items correct
+        <input id="correct" type="number" inputmode="numeric" min="0" max="175" step="1" value="120" required>
+      </label>
+      <label>Items administered
+        <input id="total" type="number" inputmode="numeric" min="1" max="175" step="1" value="175" required>
+      </label>
+      <label>Prediction interval
+        <select id="level">
+          <option value="0.9" selected>90%</option>
+          <option value="0.8">80%</option>
+        </select>
+      </label>
+    </form>
+    <p class="error" id="single-error" role="alert" hidden></p>
+    <p class="warn" id="total-warn" hidden>The model was developed on the full 175-item PNT. With a different number of items, the estimate uses the proportion correct and has not been validated.</p>
+
+    <div id="single-out" aria-live="polite">
+      <div class="hero" id="hero"></div>
+      <p class="warn" id="severity-warn" hidden></p>
+      <div class="cards" id="composites"></div>
+      <h2>Subtests</h2>
+      <div class="scroll">
+        <table class="results" id="subtests">
+          <thead><tr><th scope="col">Subtest</th><th scope="col" class="num">Estimate</th><th scope="col" class="num">Interval</th><th scope="col" class="barcol" aria-hidden="true">0 → maximum</th><th scope="col" class="acc">Accuracy</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="hint">The interval is calibrated so that, across patients like those in the development sample, it contains the true score <span class="lvl">90%</span> of the time. Coverage is lower than this in severe aphasia and higher in mild aphasia (see <em>Validation &amp; method</em>). “Accuracy” is the cross-validated R² for that subtest.</p>
+      <div class="actions">
+        <button type="button" id="copy" class="secondary">Copy summary</button>
+        <span id="copied" class="hint" role="status" hidden>Copied to clipboard.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ batch -->
+  <section id="tab-batch" role="tabpanel" aria-labelledby="t-batch" hidden>
+    <p>Upload a CSV with one row per assessment. Required columns: <code>id</code> and <code>pnt_correct</code>. Optional: <code>pnt_total</code> (defaults to 175). The file is read in your browser and never uploaded.</p>
+    <div class="batch-controls">
+      <label class="file">Choose CSV file<input id="csv" type="file" accept=".csv,text/csv"></label>
+      <label>Prediction interval
+        <select id="batch-level"><option value="0.9" selected>90%</option><option value="0.8">80%</option></select>
+      </label>
+      <button type="button" id="template" class="secondary">Download template</button>
+    </div>
+    <p class="error" id="batch-error" role="alert" hidden></p>
+    <div id="batch-out" hidden>
+      <p id="batch-summary"></p>
+      <button type="button" id="download">Download results CSV</button>
+      <div class="scroll"><table class="results compact" id="batch-preview"></table></div>
+    </div>
+  </section>
+
+  <!-- ============================================================ about -->
+  <section id="tab-about" role="tabpanel" aria-labelledby="t-about" hidden>
+    <h2>How estimates are made</h2>
+    <p>For each of the 10 WAB-R subtests, a ridge-penalised fractional-logit model maps PNT naming accuracy (logit accuracy with quadratic and cubic terms) to the expected score on the subtest's own 0-to-maximum scale. The composites (Spontaneous Speech, Auditory Verbal Comprehension, Naming &amp; Word Finding) and the AQ are computed from the estimated subtests with the WAB-R formulas, so a profile is always internally consistent. Only total correct is used: error types added no meaningful accuracy in nested cross-validation.</p>
+    <p>Intervals are normalised conformal prediction intervals: the estimate ± a stored quantile of cross-validated, scale-normalised errors, so intervals narrow near the floor and ceiling of each subtest. Only one aggregate quantile per outcome is stored; the model file contains no participant-level values. In cross-validation, 90% intervals covered the true score in 90–91% of cases on average, but coverage varied with severity (below).</p>
+
+    <h2>Cross-validated performance</h2>
+    <p class="hint" id="val-source"></p>
+    <div class="scroll"><table class="results compact" id="val-table"></table></div>
+
+    <h2>Interval coverage by severity</h2>
+    <p class="hint">Coverage of 90% intervals among development participants in each band of observed AQ. Values well below 90% mean the interval is too narrow for that group.</p>
+    <div class="scroll"><table class="results compact heat" id="band-table"></table></div>
+
+    <h2>Intended use and limits</h2>
+    <ul>
+      <li>Developed in 213 English-speaking adults with post-stroke aphasia beyond the early recovery period, assessed with the PNT and WAB-R within one week, at a single centre. Not yet externally validated.</li>
+      <li>Production subtests (Object Naming, Information Content, Responsive Speech, Naming &amp; Word Finding) are estimated with useful precision. Auditory comprehension is not, and comprehension intervals under-cover in severe aphasia: administer those subtests directly.</li>
+      <li>The AQ is estimated with a mean absolute error of about 7 points, larger than typical benchmarks of meaningful change, so the tool is not suitable for tracking an individual's change over time.</li>
+      <li>Estimates describe groups of similar patients; an individual's true score can fall outside the interval.</li>
+    </ul>
+    <h2>Citation</h2>
+    <p id="citation">Ahmadi, S., et al. (2026). Calibrated prediction of the Western Aphasia Battery–Revised profile from Philadelphia Naming Test performance [Preprint]. Code and model: this repository.</p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>Open-source research software. Source code, analysis plan and validation results are in the <a id="repo-link" href="https://github.com/">project repository</a>.</p>
+</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

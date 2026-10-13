@@ -1,0 +1,229 @@
+{
+ "source": "10 x repeated 5-fold nested cross-validation, N = 213 (fold-averaged R2; coverage of the intervals this tool uses).",
+ "bands": [
+  "Very severe (0-25)",
+  "Severe (26-50)",
+  "Moderate (51-75)",
+  "Mild (76-93.7)",
+  "Above cut-off (>=93.8)"
+ ],
+ "band_n": {
+  "Very severe (0-25)": 19,
+  "Severe (26-50)": 50,
+  "Moderate (51-75)": 58,
+  "Mild (76-93.7)": 67,
+  "Above cut-off (>=93.8)": 19
+ },
+ "outcomes": [
+  {
+   "key": "information_content",
+   "r2": 0.803,
+   "r2_linear": 0.752,
+   "mae": 0.89,
+   "coverage90": 0.905,
+   "coverage80": 0.812,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.732,
+    "Severe (26-50)": 0.838,
+    "Moderate (51-75)": 0.917,
+    "Mild (76-93.7)": 0.966,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "fluency",
+   "r2": 0.599,
+   "r2_linear": 0.604,
+   "mae": 1.51,
+   "coverage90": 0.903,
+   "coverage80": 0.817,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.995,
+    "Severe (26-50)": 0.852,
+    "Moderate (51-75)": 0.817,
+    "Mild (76-93.7)": 0.961,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "yes_no",
+   "r2": 0.275,
+   "r2_linear": 0.285,
+   "mae": 4.22,
+   "coverage90": 0.901,
+   "coverage80": 0.806,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.716,
+    "Severe (26-50)": 0.788,
+    "Moderate (51-75)": 0.947,
+    "Mild (76-93.7)": 0.985,
+    "Above cut-off (>=93.8)": 0.947
+   }
+  },
+  {
+   "key": "auditory_words",
+   "r2": 0.435,
+   "r2_linear": 0.429,
+   "mae": 5.66,
+   "coverage90": 0.905,
+   "coverage80": 0.803,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.595,
+    "Severe (26-50)": 0.808,
+    "Moderate (51-75)": 0.95,
+    "Mild (76-93.7)": 1.0,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "sequential_commands",
+   "r2": 0.423,
+   "r2_linear": 0.429,
+   "mae": 12.04,
+   "coverage90": 0.909,
+   "coverage80": 0.806,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.826,
+    "Severe (26-50)": 0.91,
+    "Moderate (51-75)": 0.857,
+    "Mild (76-93.7)": 0.952,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "object_naming",
+   "r2": 0.901,
+   "r2_linear": 0.854,
+   "mae": 4.3,
+   "coverage90": 0.905,
+   "coverage80": 0.807,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.947,
+    "Severe (26-50)": 0.886,
+    "Moderate (51-75)": 0.807,
+    "Mild (76-93.7)": 0.964,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "word_fluency",
+   "r2": 0.709,
+   "r2_linear": 0.689,
+   "mae": 2.28,
+   "coverage90": 0.909,
+   "coverage80": 0.818,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 1.0,
+    "Severe (26-50)": 0.98,
+    "Moderate (51-75)": 0.928,
+    "Mild (76-93.7)": 0.863,
+    "Above cut-off (>=93.8)": 0.742
+   }
+  },
+  {
+   "key": "sentence_completion",
+   "r2": 0.693,
+   "r2_linear": 0.678,
+   "mae": 1.29,
+   "coverage90": 0.902,
+   "coverage80": 0.813,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.826,
+    "Severe (26-50)": 0.874,
+    "Moderate (51-75)": 0.876,
+    "Mild (76-93.7)": 0.939,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "responsive_speech",
+   "r2": 0.766,
+   "r2_linear": 0.72,
+   "mae": 1.25,
+   "coverage90": 0.902,
+   "coverage80": 0.812,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.963,
+    "Severe (26-50)": 0.848,
+    "Moderate (51-75)": 0.853,
+    "Mild (76-93.7)": 0.94,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "repetition",
+   "r2": 0.715,
+   "r2_linear": 0.724,
+   "mae": 1.31,
+   "coverage90": 0.903,
+   "coverage80": 0.814,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.947,
+    "Severe (26-50)": 0.872,
+    "Moderate (51-75)": 0.857,
+    "Mild (76-93.7)": 0.925,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "spontaneous_speech",
+   "r2": 0.762,
+   "r2_linear": 0.751,
+   "mae": 2.07,
+   "coverage90": 0.91,
+   "coverage80": 0.809,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.937,
+    "Severe (26-50)": 0.86,
+    "Moderate (51-75)": 0.838,
+    "Mild (76-93.7)": 0.982,
+    "Above cut-off (>=93.8)": 0.979
+   }
+  },
+  {
+   "key": "comprehension",
+   "r2": 0.474,
+   "r2_linear": 0.482,
+   "mae": 0.98,
+   "coverage90": 0.907,
+   "coverage80": 0.806,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.7,
+    "Severe (26-50)": 0.862,
+    "Moderate (51-75)": 0.893,
+    "Mild (76-93.7)": 0.985,
+    "Above cut-off (>=93.8)": 1.0
+   }
+  },
+  {
+   "key": "naming",
+   "r2": 0.913,
+   "r2_linear": 0.885,
+   "mae": 0.68,
+   "coverage90": 0.91,
+   "coverage80": 0.807,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.937,
+    "Severe (26-50)": 0.862,
+    "Moderate (51-75)": 0.91,
+    "Mild (76-93.7)": 0.913,
+    "Above cut-off (>=93.8)": 0.995
+   }
+  },
+  {
+   "key": "aq",
+   "r2": 0.865,
+   "r2_linear": 0.858,
+   "mae": 6.89,
+   "coverage90": 0.912,
+   "coverage80": 0.813,
+   "coverage90_by_band": {
+    "Very severe (0-25)": 0.947,
+    "Severe (26-50)": 0.914,
+    "Moderate (51-75)": 0.829,
+    "Mild (76-93.7)": 0.966,
+    "Above cut-off (>=93.8)": 0.937
+   }
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+# environments and caches
+.venv/
+__pycache__/
+*.pyc
+catboost_info/
+.DS_Store
+
+# participant data must never be committed
+*.xlsx
+*.xls
+data/
+
+# participant-level intermediate results
+results/cv_oof.npz
+results/*_long.csv.gz
+# analyses outside the paper's scope (item-level, other-cohort validation)
+results/item_*
+results/validation_new_file.csv
+scripts/item_stage1.py
+scripts/item_stage2.py
+scripts/validate_new.py
+pnt2wab/itemlevel.py
+
+# superseded figure script/outputs and large TIFFs (regenerate with make_figures.py)
+scripts/plot_learning_curve.py
+figures/learning_curve_mean.*
+figures/learning_curve_outcomes.*
+figures/*.tiff
+
+# analysis outputs stay local: they are derived from participant data
+results/
+figures/
