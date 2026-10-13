@@ -11,7 +11,7 @@ Code, validation results and a browser-based estimator for the study
 
 | | |
 |---|---|
-| Input | PNT response counts: correct plus, optionally, the six error types (checked to sum to the items administered and shown as an error profile). The estimate uses naming accuracy, since error types did not improve prediction in the validation study |
+| Input | 175-item PNT response counts: correct plus, optionally, the six error types (checked to sum to 175 and shown as an error profile). The estimate uses naming accuracy, since error types did not improve prediction in the validation study |
 | Model | Ridge fractional-logit GLM per WAB-R subtest on logit accuracy (linear, quadratic, cubic terms); predictions stay on each subtest's 0-to-maximum scale |
 | Composites | Spontaneous Speech, Auditory Verbal Comprehension, Naming & Word Finding and the AQ are computed from predicted subtests with the WAB-R formulas |
 | Intervals | Normalised conformal quantile from nested cross-validation: 90.1–91.2% observed coverage for 90% intervals (lower in severe aphasia) |

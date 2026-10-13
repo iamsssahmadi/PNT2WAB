@@ -1,8 +1,9 @@
 // User interface for the PNT -> WAB-R estimator. All computation is local.
-import { predict, validateInput } from "./predict.js?v=2.2.1";
+import { predict, validateInput } from "./predict.js?v=2.3.0";
 window.__pntAppStarted = true;
 
 const $ = (id) => document.getElementById(id);
+const ITEMS = 175;  // standard PNT length
 const fmt = (x, d = 1) => (Math.round(x * 10 ** d) / 10 ** d).toFixed(d);
 const pct = (x) => `${Math.round(x * 100)}%`;
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
@@ -47,7 +48,7 @@ const ERRORS = [
 // Read the form. Returns {correct, total, errors[], errSum, entered, problem}.
 function readCounts() {
   const num = (id) => { const v = $(id).value.trim(); return v === "" ? 0 : Number(v); };
-  const correct = Number($("c-correct").value), total = Number($("total").value);
+  const correct = Number($("c-correct").value), total = ITEMS;
   const errors = ERRORS.map(([id]) => num(id));
   const errSum = errors.reduce((a, b) => a + b, 0);
   const entered = ERRORS.some(([id]) => $(id).value.trim() !== "");
@@ -74,7 +75,7 @@ function renderSingle() {
   const line = $("sum-line");
   line.classList.toggle("bad", !k.consistent);
   line.textContent = !k.entered
-    ? `Accuracy ${Number.isFinite(correct) ? correct : "–"} / ${total} (error breakdown not entered)`
+    ? `Correct ${Number.isFinite(correct) ? correct : "–"} of ${total} items (error breakdown not entered)`
     : k.consistent
       ? `Correct ${correct} + errors ${k.errSum} = ${correct + k.errSum} of ${total} items ✓`
       : `Correct ${correct} + errors ${k.errSum} = ${correct + k.errSum} of ${total} items (${total - correct - k.errSum > 0 ? `${total - correct - k.errSum} still to enter` : `${correct + k.errSum - total} too many`})`;
@@ -84,7 +85,6 @@ function renderSingle() {
   $("single-out").hidden = Boolean(err);
   if (err) return;
   renderProfile(k);
-  $("total-warn").hidden = total === 175;
   document.querySelectorAll(".lvl").forEach((e) => { e.textContent = pct(Number(level)); });
 
   const r = predict(MODEL, correct, total, level);
@@ -171,21 +171,21 @@ function runBatch(text) {
   const rows = parseCSV(text.replace(/^﻿/, ""));
   if (rows.length < 2) { errEl.textContent = "The file has no data rows."; errEl.hidden = false; return; }
   const head = rows[0].map((h) => h.trim().toLowerCase());
-  const iId = head.indexOf("id"), iC = head.indexOf("pnt_correct"), iT = head.indexOf("pnt_total");
+  const iId = head.indexOf("id"), iC = head.indexOf("pnt_correct");
   const iErr = ERRORS.map(([, , col]) => head.indexOf(col));
   const hasErr = iErr.some((i) => i >= 0);
-  if (iId < 0 || iC < 0) { errEl.textContent = "Required columns: id, pnt_correct (optional: pnt_total)."; errEl.hidden = false; return; }
+  if (iId < 0 || iC < 0) { errEl.textContent = "Required columns: id, pnt_correct (optional: the six error-count columns)."; errEl.hidden = false; return; }
   const level = $("batch-level").value;
   const keys = [...MODEL.derived.slice(3), ...MODEL.derived.slice(0, 3), ...MODEL.subtests].map((s) => s.key);
   const labels = Object.fromEntries([...MODEL.subtests, ...MODEL.derived].map((s) => [s.key, s.label]));
-  const header = ["id", "pnt_correct", "pnt_total", "status"];
+  const header = ["id", "pnt_correct", "status"];
   keys.forEach((k) => header.push(k, `${k}_lo`, `${k}_hi`));
   const outRows = [header];
   let ok = 0, bad = 0;
   for (const r of rows.slice(1)) {
     const id = (r[iId] ?? "").trim();
     const c = Number((r[iC] ?? "").trim());
-    const t = iT >= 0 && (r[iT] ?? "").trim() !== "" ? Number(r[iT].trim()) : 175;
+    const t = ITEMS;
     let e = validateInput(c, t);
     const rowHasErr = hasErr && iErr.some((i) => i >= 0 && (r[i] ?? "").trim() !== "");
     if (!e && rowHasErr) {  // blank error cells = breakdown not entered for this row
@@ -193,11 +193,11 @@ function runBatch(text) {
       if (errs.some((x) => !Number.isInteger(x) || x < 0)) e = "invalid error count";
       else if (c + errs.reduce((a, b) => a + b, 0) !== t) e = `correct + errors (${c + errs.reduce((a, b) => a + b, 0)}) does not equal ${t} items`;
     }
-    if (e) { bad++; outRows.push([id, r[iC] ?? "", t, e]); continue; }
+    if (e) { bad++; outRows.push([id, r[iC] ?? "", e]); continue; }
     ok++;
     const p = predict(MODEL, c, t, level);
     const byKey = Object.fromEntries([...p.subtests, ...p.derived].map((s) => [s.key, s]));
-    const line = [id, c, t, t === 175 ? "ok" : "ok (non-standard length)"];
+    const line = [id, c, "ok"];
     keys.forEach((k) => line.push(fmt(byKey[k].pred, 2), fmt(byKey[k].lo, 2), fmt(byKey[k].hi, 2)));
     outRows.push(line);
   }
@@ -208,9 +208,9 @@ function runBatch(text) {
   const prev = outRows.slice(1, 21);
   $("batch-preview").innerHTML = `<thead><tr><th>id</th><th class="num">PNT</th>${show.map((k) => `<th class="num">${esc(labels[k])}</th>`).join("")}<th>status</th></tr></thead><tbody>`
     + prev.map((r) => {
-      if (r.length <= 4) return `<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td>${show.map(() => "<td></td>").join("")}<td>${esc(r[3])}</td></tr>`;
+      if (r.length <= 3) return `<tr><td>${esc(r[0])}</td><td class="num">${esc(r[1])}</td>${show.map(() => "<td></td>").join("")}<td>${esc(r[2])}</td></tr>`;
       const cell = (k) => { const j = header.indexOf(k); return `<td class="num">${r[j]} <span class="hint">(${r[j + 1]}–${r[j + 2]})</span></td>`; };
-      return `<tr><td>${esc(r[0])}</td><td class="num">${r[1]}/${r[2]}</td>${show.map(cell).join("")}<td>${esc(r[3])}</td></tr>`;
+      return `<tr><td>${esc(r[0])}</td><td class="num">${r[1]}/${ITEMS}</td>${show.map(cell).join("")}<td>${esc(r[2])}</td></tr>`;
     }).join("") + "</tbody>";
   if (outRows.length > 21) $("batch-summary").textContent += " Preview shows the first 20 rows; the download contains all.";
   out.hidden = false;
@@ -268,7 +268,7 @@ function setupTabs() {
 async function main() {
   setupTabs();
   try {
-    [MODEL, VAL] = await Promise.all(["model.json", "validation.json"].map((f) => fetch(`${f}?v=2.2.1`, { cache: "no-cache" }).then((r) => {
+    [MODEL, VAL] = await Promise.all(["model.json", "validation.json"].map((f) => fetch(`${f}?v=2.3.0`, { cache: "no-cache" }).then((r) => {
       if (!r.ok) throw new Error(`${f}: HTTP ${r.status}`);
       return r.json();
     })));
@@ -282,7 +282,7 @@ async function main() {
   const repo = document.querySelector('meta[name="repository"]');
   if (repo) $("repo-link").href = repo.content;
 
-  ["c-correct", "total", "level", ...ERRORS.map(([id]) => id)].forEach((id) => $(id).addEventListener("input", renderSingle));
+  ["c-correct", "level", ...ERRORS.map(([id]) => id)].forEach((id) => $(id).addEventListener("input", renderSingle));
   $("single-form").addEventListener("submit", (e) => {
     e.preventDefault();
     renderSingle();
@@ -301,7 +301,7 @@ async function main() {
   });
   $("batch-level").addEventListener("change", () => { const f = $("csv").files[0]; if (f) f.text().then(runBatch); });
   $("download").addEventListener("click", () => download("pnt_wab_estimates.csv", batchCSV));
-  $("template").addEventListener("click", () => download("pnt_wab_template.csv", "id,pnt_correct,pnt_total,semantic,formal,mixed,neologism,unrelated,no_response\nP001,120,175,7,12,2,8,6,20\nP002,45,175,,,,,,\n"));
+  $("template").addEventListener("click", () => download("pnt_wab_template.csv", "id,pnt_correct,semantic,formal,mixed,neologism,unrelated,no_response\nP001,120,7,12,2,8,6,20\nP002,45,,,,,,\n"));
   renderSingle();
   renderAbout();
 }

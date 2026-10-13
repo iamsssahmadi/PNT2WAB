@@ -6,8 +6,8 @@
 <title>PNT to WAB-R Estimator</title>
 <meta name="description" content="Estimate WAB-R subtest scores, composites and the Aphasia Quotient, with calibrated prediction intervals, from Philadelphia Naming Test accuracy. Runs entirely in your browser.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a78d6'/%3E%3Cpath d='M8 22 L14 14 L18 18 L24 9' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<meta name="repository" content="https://github.com/iamsssahmadi/PNT2WAB">
-<link rel="stylesheet" href="style.css?v=2.2.1">
+<meta name="repository" content="https://github.com/saeed-ahmadi/PNT2WAB">
+<link rel="stylesheet" href="style.css?v=2.3.0">
 </head>
 <body>
 <header class="top">
@@ -41,7 +41,6 @@
           <label>No response <input id="c-nr" class="err-in" type="number" inputmode="numeric" min="0" max="175" step="1" placeholder="0"></label>
         </div>
         <div class="inputs second">
-          <label>Items administered <input id="total" type="number" inputmode="numeric" min="1" max="175" step="1" value="175" required></label>
           <label>Prediction interval
             <select id="level">
               <option value="0.9" selected>90%</option>
@@ -52,10 +51,9 @@
           <p class="sum" id="sum-line" aria-live="polite"></p>
         </div>
       </fieldset>
-      <p class="hint">Error counts are optional. When entered, they must add up to the items administered together with the correct responses. Estimates are based on naming accuracy (correct / items administered): in the validation study, error types did not improve the WAB-R estimates. The error profile is shown for your records.</p>
+      <p class="hint">Counts are for the standard 175-item PNT. Error counts are optional; when entered, correct + errors must add up to 175. Estimates are based on naming accuracy (correct / 175): in the validation study, error types did not improve the WAB-R estimates. The error profile is shown for your records.</p>
     </form>
     <p class="error" id="single-error" role="alert" hidden></p>
-    <p class="warn" id="total-warn" hidden>The model was developed on the full 175-item PNT. With a different number of items, the estimate uses the proportion correct and has not been validated.</p>
 
     <div id="single-out" aria-live="polite">
       <div class="hero" id="hero"><div class="k">Loading model…</div></div>
@@ -79,7 +77,7 @@
 
   <!-- ============================================================ batch -->
   <section id="tab-batch" role="tabpanel" aria-labelledby="t-batch" hidden>
-    <p>Upload a CSV with one row per assessment. Required columns: <code>id</code> and <code>pnt_correct</code>. Optional: <code>pnt_total</code> (defaults to 175) and the error counts <code>semantic</code>, <code>formal</code>, <code>mixed</code>, <code>neologism</code>, <code>unrelated</code>, <code>no_response</code>; when error counts are given, correct + errors must equal the items administered. The file is read in your browser and never uploaded.</p>
+    <p>Upload a CSV with one row per assessment of the 175-item PNT. Required columns: <code>id</code> and <code>pnt_correct</code>. Optional error counts: <code>semantic</code>, <code>formal</code>, <code>mixed</code>, <code>neologism</code>, <code>unrelated</code>, <code>no_response</code>; when a row has error counts, correct + errors must equal 175. The file is read in your browser and never uploaded.</p>
     <div class="batch-controls">
       <label class="file">Choose CSV file<input id="csv" type="file" accept=".csv,text/csv"></label>
       <label>Prediction interval
@@ -124,14 +122,14 @@
 <footer class="wrap foot">
   <p>Open-source research software. Source code, analysis plan and validation results are in the <a id="repo-link" href="https://github.com/">project repository</a>.</p>
 </footer>
-<script type="module" src="app.js?v=2.2.1"></script>
+<script type="module" src="app.js?v=2.3.0"></script>
 <script>
   // shown only if the app script never starts (old browser, blocked script, or opened as a local file)
   setTimeout(function () {
     if (!window.__pntAppStarted) {
       var e = document.getElementById("single-error");
       e.textContent = "The estimator could not start. Please use an up-to-date Chrome, Edge, Firefox or Safari, "
-        + "open it at https://iamsssahmadi.github.io/PNT2WAB/ (not as a local file), and reload with Ctrl+Shift+R.";
+        + "open it at https://saeed-ahmadi.github.io/PNT2WAB/ (not as a local file), and reload with Ctrl+Shift+R.";
       e.hidden = false;
     }
   }, 4000);

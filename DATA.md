@@ -24,4 +24,4 @@ Descriptive columns used only for reporting (not predictors): `Race`, `Sex`, `Da
 
 ## Web tool batch CSV
 
-`id,pnt_correct,pnt_total,semantic,formal,mixed,neologism,unrelated,no_response` — only `id` and `pnt_correct` are required; `pnt_total` defaults to 175. If a row has error counts, correct + errors must equal `pnt_total`; blank error cells mean the breakdown was not entered. A template can be downloaded from the tool's *Batch* tab.
+`id,pnt_correct,semantic,formal,mixed,neologism,unrelated,no_response` for the 175-item PNT — only `id` and `pnt_correct` are required. If a row has error counts, correct + errors must equal 175; blank error cells mean the breakdown was not entered. A template can be downloaded from the tool's *Batch* tab.

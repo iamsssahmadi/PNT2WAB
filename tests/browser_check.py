@@ -71,9 +71,9 @@ def main():
             assert not hscroll, f"{name}: horizontal page scroll"
             page.click("#t-batch")
             csv = OUT / "batch.csv"
-            csv.write_text("id,pnt_correct,pnt_total,semantic,formal,mixed,neologism,unrelated,no_response\n"
-                           "A,120,175,7,12,2,8,6,20\nB,0,175,,,,,,\nC,175,175,0,0,0,0,0,0\nD,abc,175,,,,,,\n"
-                           "E,80,174,,,,,,\nF,100,175,10,10,10,10,10,10\n")
+            csv.write_text("id,pnt_correct,semantic,formal,mixed,neologism,unrelated,no_response\n"
+                           "A,120,7,12,2,8,6,20\nB,0,,,,,,\nC,175,0,0,0,0,0,0\nD,abc,,,,,,\n"
+                           "E,80,,,,,,\nF,100,10,10,10,10,10,10\n")
             page.set_input_files("#csv", str(csv))
             page.wait_for_selector("#batch-out:not([hidden])")
             summ = page.locator("#batch-summary").inner_text()

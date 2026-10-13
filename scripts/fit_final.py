@@ -102,7 +102,7 @@ def main(path):
         return np.clip(lo, 0, mx_all), np.clip(hi, 0, mx_all)
 
     model = dict(
-        name="PNT-to-WAB bounded model", version="2.2.0", trained=str(date.today()),
+        name="PNT-to-WAB bounded model", version="2.3.0", trained=str(date.today()),
         n_train=int(len(X)),
         description="Ridge fractional-logit GLM on logit naming accuracy (linear, quadratic, cubic). "
                     "Composites and AQ are derived from predicted subtests with WAB-R formulas. "
